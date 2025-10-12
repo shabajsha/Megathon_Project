@@ -1,0 +1,11 @@
+numpy
+opencv-python
+Pillow
+imagehash
+tqdm
+torch
+torchvision
+timm
+scikit-learn
+streamlit
+faiss-cpu  # optional
