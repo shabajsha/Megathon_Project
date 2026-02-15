@@ -232,7 +232,7 @@ def render_sidebar():
         st.markdown('<div style="height: 2rem;"></div>', unsafe_allow_html=True)
         
         if st.button("🔄 Reset Analysis", use_container_width=True):
-            for key in ['analysis_complete', 'fraud_result', 'damage_result', 'cost_estimate']:
+            for key in ['analysis_complete', 'all_results', 'total_cost', 'uploaded_docs']:
                 if key in st.session_state:
                     del st.session_state[key]
             st.rerun()
@@ -267,35 +267,74 @@ def render_upload_section():
     
     with col2:
         st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.markdown('<div class="card-title">📤 Upload Vehicle Image</div>', unsafe_allow_html=True)
+        st.markdown('<div class="card-title">📤 Upload Vehicle Images & Documents</div>', unsafe_allow_html=True)
         
-        uploaded_file = st.file_uploader(
-            "Select an image file",
-            type=["jpg", "jpeg", "png"],
-            help="Supported formats: JPG, JPEG, PNG",
-            label_visibility="collapsed"
+        # Image upload section
+        uploaded_files = st.file_uploader(
+            "Select image file(s)",
+            type=["jpg", "jpeg", "png", "bmp", "webp", "tiff"],
+            help="Supported formats: JPG, JPEG, PNG, BMP, WEBP, TIFF. Upload multiple images for batch processing.",
+            label_visibility="collapsed",
+            accept_multiple_files=True
         )
         
-        if uploaded_file is not None:
-            image = Image.open(uploaded_file)
+        # Document upload section
+        st.markdown('<div style="height: 1rem;"></div>', unsafe_allow_html=True)
+        st.markdown('<div style="text-align: center; font-weight: 500; color: #90a4ae; font-size: 0.9rem;">📎 Optional: Attach Supporting Documents</div>', unsafe_allow_html=True)
+        uploaded_docs = st.file_uploader(
+            "Select document file(s)",
+            type=["pdf", "doc", "docx", "txt"],
+            help="Attach insurance forms, repair estimates, or other relevant documents",
+            label_visibility="collapsed",
+            accept_multiple_files=True,
+            key="docs_uploader"
+        )
+        
+        if uploaded_files:
+            images = []
+            for uploaded_file in uploaded_files:
+                try:
+                    image = Image.open(uploaded_file)
+                    images.append((uploaded_file.name, image))
+                except Exception as e:
+                    st.error(f"Error loading {uploaded_file.name}: {str(e)}")
             
-            st.markdown('<div style="height: 2rem;"></div>', unsafe_allow_html=True)
-            st.markdown('<div style="text-align: center; font-weight: 600; color: #b0bec5; margin-bottom: 1rem;">Uploaded Image</div>', unsafe_allow_html=True)
-            
-            col_img1, col_img2, col_img3 = st.columns([0.5, 2, 0.5])
-            with col_img2:
-                st.image(image, use_container_width=True)
-            
-            st.markdown('<div style="height: 2rem;"></div>', unsafe_allow_html=True)
-            
-            col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
-            with col_btn2:
-                if st.button("🔍 Analyze Damage", type="primary", use_container_width=True):
-                    return image
+            if images:
+                st.markdown('<div style="height: 2rem;"></div>', unsafe_allow_html=True)
+                st.markdown(f'<div style="text-align: center; font-weight: 600; color: #b0bec5; margin-bottom: 1rem;">Uploaded Images ({len(images)})</div>', unsafe_allow_html=True)
+                
+                # Display images in a grid
+                if len(images) == 1:
+                    col_img1, col_img2, col_img3 = st.columns([0.5, 2, 0.5])
+                    with col_img2:
+                        st.image(images[0][1], caption=images[0][0], use_container_width=True)
+                else:
+                    # Display in grid for multiple images
+                    cols_per_row = min(3, len(images))
+                    for i in range(0, len(images), cols_per_row):
+                        cols = st.columns(cols_per_row)
+                        for j, col in enumerate(cols):
+                            if i + j < len(images):
+                                with col:
+                                    st.image(images[i + j][1], caption=images[i + j][0], use_container_width=True)
+                
+                # Display attached documents
+                if uploaded_docs:
+                    st.markdown('<div style="height: 1rem;"></div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="text-align: center; font-weight: 600; color: #b0bec5; margin-bottom: 0.5rem;">📎 Attached Documents ({len(uploaded_docs)})</div>', unsafe_allow_html=True)
+                    for doc in uploaded_docs:
+                        st.markdown(f'<div style="text-align: center; color: #78909c; font-size: 0.9rem;">• {doc.name} ({doc.size / 1024:.1f} KB)</div>', unsafe_allow_html=True)
+                
+                st.markdown('<div style="height: 2rem;"></div>', unsafe_allow_html=True)
+                
+                col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
+                with col_btn2:
+                    if st.button("🔍 Analyze Damage", type="primary", use_container_width=True):
+                        return images, uploaded_docs if uploaded_docs else []
         
         st.markdown('</div>', unsafe_allow_html=True)
     
-    return None
+    return None, None
 
 def render_fraud_results(fraud_result):
     """Render fraud detection results."""
@@ -506,48 +545,115 @@ def main():
     # Main workflow
     if 'analysis_complete' not in st.session_state:
         # Upload phase
-        image = render_upload_section()
+        images, documents = render_upload_section()
         
-        if image is not None:
-            with st.spinner("🤖 Analyzing image with AI..."):
-                # Run fraud detection
-                fraud_result = detect_fraud(image)
-                st.session_state.fraud_result = fraud_result
-                st.session_state.uploaded_image = image
-                st.session_state.analysis_complete = True
+        if images is not None:
+            with st.spinner("🤖 Analyzing images with AI..."):
+                # Store uploaded documents
+                st.session_state.uploaded_docs = documents
                 
-                # Run damage analysis if fraud check passed
-                if not fraud_result['is_fraud']:
-                    damage_result = predict_car_damage_complete(image)
-                    st.session_state.damage_result = damage_result
+                # Process multiple images
+                all_results = []
+                total_cost = 0
+                
+                for image_name, image in images:
+                    # Run fraud detection
+                    fraud_result = detect_fraud(image)
                     
-                    # Run cost estimation
-                    cost_estimate = estimate_repair_cost(
-                        damage_result['severity'],
-                        damage_result['damage_type'],  # Use actual damage type
-                        damage_result['severity_confidence']
-                    )
-                    st.session_state.cost_estimate = cost_estimate
-                else:
-                    st.session_state.damage_result = None
-                    st.session_state.cost_estimate = None
+                    # Run damage analysis if fraud check passed
+                    if not fraud_result['is_fraud']:
+                        damage_result = predict_car_damage_complete(image)
+                        
+                        # Run cost estimation
+                        cost_estimate = estimate_repair_cost(
+                            damage_result['severity'],
+                            damage_result['damage_type'],
+                            damage_result['severity_confidence']
+                        )
+                        total_cost += cost_estimate['estimated_cost']
+                    else:
+                        damage_result = None
+                        cost_estimate = None
+                    
+                    all_results.append({
+                        'image_name': image_name,
+                        'image': image,
+                        'fraud_result': fraud_result,
+                        'damage_result': damage_result,
+                        'cost_estimate': cost_estimate
+                    })
+                
+                st.session_state.all_results = all_results
+                st.session_state.total_cost = total_cost
+                st.session_state.analysis_complete = True
                 
                 st.rerun()
     
     else:
-        # Results phase
-        fraud_result = st.session_state.fraud_result
+        # Results phase - Display results for all images
+        all_results = st.session_state.all_results
         
-        # Display fraud results
-        render_fraud_results(fraud_result)
+        # Summary section for multiple images
+        if len(all_results) > 1:
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                st.markdown('<div class="card">', unsafe_allow_html=True)
+                st.markdown('<div class="card-title">📊 Batch Analysis Summary</div>', unsafe_allow_html=True)
+                
+                passed_count = sum(1 for r in all_results if not r['fraud_result']['is_fraud'])
+                rejected_count = len(all_results) - passed_count
+                
+                col_s1, col_s2, col_s3 = st.columns(3)
+                with col_s1:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Total Images</div>
+                        <div class="metric-value">{len(all_results)}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col_s2:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Passed</div>
+                        <div class="metric-value">✓ {passed_count}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col_s3:
+                    st.markdown(f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Total Cost</div>
+                        <div class="metric-value">${st.session_state.total_cost:,}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                # Display attached documents
+                if st.session_state.uploaded_docs:
+                    st.markdown('<div style="height: 1rem;"></div>', unsafe_allow_html=True)
+                    st.markdown("**📎 Attached Documents:**")
+                    for doc in st.session_state.uploaded_docs:
+                        st.markdown(f"• {doc.name} ({doc.size / 1024:.1f} KB)")
+                
+                st.markdown('</div>', unsafe_allow_html=True)
         
-        # Display damage results if available
-        if not fraud_result['is_fraud'] and st.session_state.damage_result:
-            render_damage_results(
-                st.session_state.damage_result,
-                st.session_state.cost_estimate,
-                st.session_state.uploaded_image
-            )
+        # Display individual results
+        for idx, result in enumerate(all_results):
+            st.markdown(f'<div style="height: 2rem;"></div>', unsafe_allow_html=True)
+            
+            if len(all_results) > 1:
+                st.markdown(f'<div style="text-align: center; font-size: 1.5rem; font-weight: 700; color: #64b5f6; margin: 1rem 0;">Image {idx + 1}: {result["image_name"]}</div>', unsafe_allow_html=True)
+            
+            # Display fraud results
+            render_fraud_results(result['fraud_result'])
+            
+            # Display damage results if available
+            if not result['fraud_result']['is_fraud'] and result['damage_result']:
+                render_damage_results(
+                    result['damage_result'],
+                    result['cost_estimate'],
+                    result['image']
+                )
     
     # Render footer
     render_footer()

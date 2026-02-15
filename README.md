@@ -4,6 +4,14 @@ A comprehensive Streamlit web application that uses dual AI models to analyze ca
 
 ## ✨ Features
 
+### 📎 File Attachment & Batch Processing
+- **Multiple Image Upload**: Process multiple car images simultaneously
+- **Extended Format Support**: JPG, JPEG, PNG, BMP, WEBP, TIFF
+- **Document Attachment**: Attach supporting documents (PDF, DOC, DOCX, TXT)
+- **Batch Analysis**: Automatic processing of all uploaded images
+- **Aggregate Reporting**: Combined cost estimates and statistics
+- **File Management**: View uploaded files with size information
+
 ### 🤖 Dual AI Model System
 - **Severity Model**: Classifies damage as low, moderate, or heavy
 - **Damage Type Model**: Identifies specific damage types (scratch, dent, crack, paint damage, bumper damage, glass damage)
@@ -17,12 +25,14 @@ A comprehensive Streamlit web application that uses dual AI models to analyze ca
 - **Statistical Analysis**: Analyzes color patterns and image consistency
 - **Mobile-Specific Detection**: Identifies mobile vs. desktop image characteristics
 - **Adjustable Thresholds**: Customizable fraud detection sensitivity (30-80%)
+- **Batch Fraud Analysis**: Individual fraud checks for all images
 
 ### 💰 Cost Estimation
 - **Dynamic Pricing**: Cost estimates based on severity and damage type
 - **Detailed Breakdown**: Parts, labor, and additional fees
 - **Repair Time Estimates**: Expected repair duration
 - **Insurance Integration**: Ready for insurance claim processing
+- **Total Cost Aggregation**: Combined estimates for multiple images
 
 ### 🎨 Modern User Interface
 - **Dark Theme**: Professional dark mode interface
@@ -30,6 +40,7 @@ A comprehensive Streamlit web application that uses dual AI models to analyze ca
 - **Real-time Analysis**: Instant results with progress indicators
 - **Interactive Controls**: Adjustable settings in sidebar
 - **Status Monitoring**: Live model status and system health
+- **Grid Display**: Efficient visualization of multiple images
 
 ## 🚀 Quick Start
 
@@ -67,23 +78,28 @@ A comprehensive Streamlit web application that uses dual AI models to analyze ca
 
 ## 📖 How to Use
 
-### 1. Upload an Image
-- Drag and drop or click to upload a car image (PNG, JPG, or JPEG)
-- Ensure the image is clear and shows the damage area
-- Supported formats: PNG, JPG, JPEG
+### 1. Upload Images & Documents
+- **Multiple Images**: Upload one or more car images for batch processing
+- **Image Formats**: PNG, JPG, JPEG, BMP, WEBP, TIFF
+- **Supporting Documents**: Optionally attach PDF, DOC, DOCX, or TXT files (insurance forms, repair estimates, etc.)
+- Ensure images are clear and show the damage area
+- Drag and drop or click to upload files
 
 ### 2. Fraud Detection
-- The system automatically runs fraud detection
-- Review the fraud score and risk level
+- The system automatically runs fraud detection on all uploaded images
+- Review the fraud score and risk level for each image
 - Check detailed fraud detection reasons if flagged
+- Batch summary shows overall pass/fail statistics
 
 ### 3. Damage Analysis
-- View both severity and damage type predictions
+- View both severity and damage type predictions for each image
 - See confidence scores for each model
-- Review cost estimates and repair time
+- Review cost estimates and repair time per image
+- Total cost calculation for multiple images
 
 ### 4. Results Review
-- Examine the comprehensive damage assessment
+- Examine the comprehensive damage assessment for each image
+- View attached documents for reference
 - Check model status and system performance
 - Export or share results as needed
 
