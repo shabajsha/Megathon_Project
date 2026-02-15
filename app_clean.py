@@ -323,7 +323,8 @@ def render_upload_section():
                     st.markdown('<div style="height: 1rem;"></div>', unsafe_allow_html=True)
                     st.markdown(f'<div style="text-align: center; font-weight: 600; color: #b0bec5; margin-bottom: 0.5rem;">📎 Attached Documents ({len(uploaded_docs)})</div>', unsafe_allow_html=True)
                     for doc in uploaded_docs:
-                        st.markdown(f'<div style="text-align: center; color: #78909c; font-size: 0.9rem;">• {doc.name} ({doc.size / 1024:.1f} KB)</div>', unsafe_allow_html=True)
+                        doc_size = f"({doc.size / 1024:.1f} KB)" if doc.size else ""
+                        st.markdown(f'<div style="text-align: center; color: #78909c; font-size: 0.9rem;">• {doc.name} {doc_size}</div>', unsafe_allow_html=True)
                 
                 st.markdown('<div style="height: 2rem;"></div>', unsafe_allow_html=True)
                 
@@ -603,7 +604,7 @@ def main():
                 passed_count = sum(1 for r in all_results if not r['fraud_result']['is_fraud'])
                 rejected_count = len(all_results) - passed_count
                 
-                col_s1, col_s2, col_s3 = st.columns(3)
+                col_s1, col_s2, col_s3, col_s4 = st.columns(4)
                 with col_s1:
                     st.markdown(f"""
                     <div class="metric-card">
@@ -623,6 +624,14 @@ def main():
                 with col_s3:
                     st.markdown(f"""
                     <div class="metric-card">
+                        <div class="metric-label">Rejected</div>
+                        <div class="metric-value">✗ {rejected_count}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with col_s4:
+                    st.markdown(f"""
+                    <div class="metric-card">
                         <div class="metric-label">Total Cost</div>
                         <div class="metric-value">${st.session_state.total_cost:,}</div>
                     </div>
@@ -633,7 +642,8 @@ def main():
                     st.markdown('<div style="height: 1rem;"></div>', unsafe_allow_html=True)
                     st.markdown("**📎 Attached Documents:**")
                     for doc in st.session_state.uploaded_docs:
-                        st.markdown(f"• {doc.name} ({doc.size / 1024:.1f} KB)")
+                        doc_size = f"({doc.size / 1024:.1f} KB)" if doc.size else ""
+                        st.markdown(f"• {doc.name} {doc_size}")
                 
                 st.markdown('</div>', unsafe_allow_html=True)
         
