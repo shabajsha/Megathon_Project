@@ -15,7 +15,7 @@ __pycache__/
 .env.production
 
 # IDE
-.vscode/
+# .vscode/ - KEEP: We want to commit VS Code config for the project
 .idea/
 *.swp
 *.swo

@@ -1,0 +1,58 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Backend: Debug",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "${workspaceFolder}/backend",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": ["<node_internals>/**"],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    },
+    {
+      "name": "Frontend: Debug",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/frontend/src",
+      "sourceMaps": true,
+      "preLaunchTask": "frontend: dev"
+    },
+    {
+      "name": "Backend: Attach",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,
+      "restart": true,
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      "name": "Full Stack: Debug",
+      "type": "node",
+      "request": "launch",
+      "name": "Launch Program",
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "preLaunchTask": "Run Full Stack"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Full Stack",
+      "configurations": ["Backend: Debug", "Frontend: Debug"],
+      "stopAll": true,
+      "presentation": {
+        "hidden": false,
+        "group": "full-stack",
+        "order": 1
+      }
+    }
+  ]
+}
