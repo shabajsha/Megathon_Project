@@ -1,0 +1,31 @@
+{
+  "folders": [
+    {
+      "name": "🎯 Megathon Event Management",
+      "path": "."
+    },
+    {
+      "name": "🔧 Backend",
+      "path": "backend"
+    },
+    {
+      "name": "🎨 Frontend",
+      "path": "frontend"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/.git": true,
+      "**/__pycache__": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "dsznajder.es7-react-js-snippets",
+      "mongodb.mongodb-vscode"
+    ]
+  }
+}

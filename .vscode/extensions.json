@@ -1,0 +1,21 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "dsznajder.es7-react-js-snippets",
+    "christian-kohler.npm-intellisense",
+    "christian-kohler.path-intellisense",
+    "formulahendry.auto-rename-tag",
+    "formulahendry.auto-close-tag",
+    "wix.vscode-import-cost",
+    "mongodb.mongodb-vscode",
+    "ms-vscode.vscode-node-azure-pack",
+    "msjsdiag.vscode-react-native",
+    "ecmel.vscode-html-css",
+    "ritwickdey.liveserver",
+    "yoavbls.pretty-ts-errors",
+    "aaron-bond.better-comments",
+    "usernamehw.errorlens",
+    "bradlc.vscode-tailwindcss"
+  ]
+}
